@@ -5,7 +5,8 @@ import { useEffect, useState } from 'react';
 
 export default function HomePage() {
   const [posts, setPosts] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
+  const [deletingPostId, setDeletingPostId] = useState(false);
   const [error, setError] = useState(null);
   const [count, setCount] = useState(0);
 
@@ -28,21 +29,15 @@ export default function HomePage() {
 
   const handleDelete = async (id) => {
     try {
-      setLoading(true);
+      setDeletingPostId(id);
       await axios.delete(`https://jsonplaceholder.typicode.com/posts/${id}`);
       setPosts((prevPosts) => prevPosts.filter((post) => post.id !== id));
     } catch (error) {
       setError('Failed to delete a post', error);
       console.error(error);
     } finally {
-      setLoading(false);
+      setDeletingPostId(null);
     }
-  };
-
-  const handleCount = async () => {
-    console.log('ba')
-    setCount((prevCount) => prevCount + 1)
-    setCount((prevCount) => prevCount + 1)
   };
 
   if (loading) {
@@ -55,23 +50,22 @@ export default function HomePage() {
 
   return (
     <div className="p-8">
-      <div>
-        <h1 className="text-white">{count}</h1>
-        <button onClick={handleCount()} className="p-4 bg-red-200 ounded-xl">
-          Count
-        </button>
-      </div>
+      <div></div>
       <h2 className="text-2xl font-bold mb-4">List Posts</h2>
       <ul className="space-y-4">
         {posts.map((post, index) => (
           <li key={post.id} className="p-4 border rounded shadow">
             <h3>
-              {' '}
               {index + 1}. {post.title}
             </h3>
             <p>{post.body}</p>
 
-            <button onClick={() => handleDelete(post.id)}>Delete</button>
+            <button
+              onClick={() => handleDelete(post.id)}
+              className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"
+            >
+              {deletingPostId === post.id ? 'Deleting...' : 'Delete'}
+            </button>
           </li>
         ))}
       </ul>
